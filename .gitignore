@@ -13,3 +13,8 @@
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+
+*.pem
+*.DS_Store
+*default.conf
+*node_modules
