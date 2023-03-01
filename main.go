@@ -1,30 +1,18 @@
 package main
 
 import (
-	"net/http"
 	"os"
 
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+	Web "github.com/bhinmantx/WeatherStation2/web"
 )
 
 func main() {
-
-	e := echo.New()
-
-	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
-
-	e.File("/", "public/index.html")
-
-	e.GET("/ping", func(c echo.Context) error {
-		return c.JSON(http.StatusOK, struct{ Status string }{Status: "SURE"})
-	})
 
 	httpPort := os.Getenv("HTTP_PORT")
 	if httpPort == "" {
 		httpPort = "8080"
 	}
+	webapp := Web.New("local")
+	webapp.Start(httpPort)
 
-	e.Logger.Fatal(e.Start(":" + httpPort))
 }

@@ -11,6 +11,8 @@ from multiprocessing import Process, Lock
 import sched, time
 import adafruit_sht31d
 from adafruit_dps310.basic import DPS310
+from stepperController import StepperControl
+import simplejson
 
 hostName = "weather_1"
 PORT = 8080
@@ -30,6 +32,9 @@ arduino_data = {}
 file1 = open("logging.log", "a")  # append mode
 
 
+panmotor = StepperControl() 
+
+
 def loggingWrite():
     global file1
     sensor_data = {}
@@ -39,7 +44,9 @@ def loggingWrite():
     file1.writelines(",")
     file1.close()
 
+
 schedule.every(5).seconds.do(loggingWrite)
+
 print("scheduled!")
 #for better interrupt
 def cleanup():
@@ -54,14 +61,14 @@ def gatherSensorData():
     # getting the timestamp
     ts = datetime.timestamp(dt)
     try:
-        contactArduino()
+        #contactArduino()
         sensor_data = {
         'pressure': round(baro_s.pressure,2),
         'humidity': round(humidity_s.relative_humidity,2),
         'baro_temp': round(baro_s.temperature,2),
         'humidity_temp': round(humidity_s.temperature,2),
-        'heading': arduino_data['heading'],
-        'wind_speed': arduino_data['wind_speed'],
+        #'heading': arduino_data['heading'],
+        #'wind_speed': arduino_data['wind_speed'],
         'time': int(round(ts))
         }
     except ValueError:  # includes simplejson.decoder.JSONDecodeError
@@ -86,7 +93,7 @@ def contactArduino():
 
 
 
-#class MyServer(BaseHTTPRequestHandler):
+
 class TestHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
         sensor_data = {}
@@ -115,15 +122,18 @@ class TestHandler(http.server.SimpleHTTPRequestHandler):
 
     
     def do_POST(self):
-        sensor_data = {}
-        sensor_data = gatherSensorData()
+
+        
+
+        self.data_string = self.rfile.read(int(self.headers['Content-Length']))
+
         self.send_response(200)
-        self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Content-type", "application/json")
         self.end_headers()
-        self.flush_headers()
-        outgoing_json = json.dumps(sensor_data)
-        self.wfile.write(outgoing_json.encode())
+
+        data = simplejson.loads(self.data_string)
+        degreesToMove = data["degrees"]
+        panmotor.move(degreesToMove, -1)
+
 
 def start_server():
     """Start the server."""
