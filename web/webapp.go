@@ -19,7 +19,7 @@ func New(env string) *WebApp {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	WireupRoutes(e, webapp)
+	WireupRoutes(e)
 
 	webapp.e = e
 	return webapp

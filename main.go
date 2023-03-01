@@ -1,7 +1,6 @@
 package main
 
 import (
-	"net/http"
 	"os"
 
 	Web "github.com/bhinmantx/WeatherStation2/web"
