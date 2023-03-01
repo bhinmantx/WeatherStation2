@@ -132,7 +132,8 @@ class TestHandler(http.server.SimpleHTTPRequestHandler):
 
         data = simplejson.loads(self.data_string)
         degreesToMove = data["degrees"]
-        panmotor.move(degreesToMove, -1)
+        direction = data["direction"]
+        panmotor.move(degreesToMove, direction)
 
 
 def start_server():

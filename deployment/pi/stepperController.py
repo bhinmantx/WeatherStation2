@@ -22,9 +22,16 @@ class StepperControl(object):
         for coil in self.coils:
             coil.direction = digitalio.Direction.OUTPUT
         self.motor = stepper.StepperMotor(self.coils[0], self.coils[1], self.coils[2], self.coils[3], microsteps=None)
-    def move(self, degrees, direction): #tragically right now degrees is just steps. It's very close to the 400
+    def move(self, degrees, mydirection): #tragically right now degrees is just steps. It's very close to the 400
         print("moving")
         #stepper.BACKWARD
-        for step in range(degrees):
-            self.motor.onestep()
-            time.sleep(self.DELAY)
+        if mydirection < 0:
+            for step in range(degrees):
+                self.motor.onestep(direction=stepper.BACKWARD)
+                time.sleep(self.DELAY)
+        else:
+            for step in range(degrees):
+                self.motor.onestep()
+                time.sleep(self.DELAY)
+            
+
